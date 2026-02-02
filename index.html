@@ -39,7 +39,7 @@
             <div class="space-y-4">
                 <div class="grid grid-cols-3 gap-4 items-end">
                     <div class="col-span-2">
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Model Engine (Sorted by Cost)</label>
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Model Engine (Sorted: Cheap → Pro)</label>
                         <select id="modelSelect" onchange="updateModelPrice()" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
                             <option value="">Loading Models...</option>
                         </select>
@@ -113,26 +113,27 @@
 
             try {
                 const mRes = await fetch('https://image.1984.ie/models');
-                modelCache = await mRes.json();
+                const rawModels = await mRes.json();
                 
-                // Sort by cost (ascending)
-                modelCache.sort((a, b) => {
-                    const priceA = a.pricing ? (a.pricing.completionImageTokens || 0) : 0;
-                    const priceB = b.pricing ? (b.pricing.completionImageTokens || 0) : 0;
-                    return priceA - priceB;
-                });
+                // Helper to get cost safely
+                const getCost = (m) => (m.pricing && m.pricing.completionImageTokens) ? parseFloat(m.pricing.completionImageTokens) : 0;
+
+                // Sort and clean models
+                modelCache = rawModels
+                    .filter(m => m.output_modalities && m.output_modalities.includes('image'))
+                    .sort((a, b) => getCost(a) - getCost(b));
 
                 select.innerHTML = '';
                 modelCache.forEach(model => {
                     const opt = document.createElement('option');
                     opt.value = model.name;
-                    // Use description if available, otherwise capitalize name
-                    let displayName = model.name.toUpperCase();
-                    if (model.description) {
-                        // Extract the first part of the description before the dash or use it all
-                        displayName = model.description.split(' - ')[0].toUpperCase();
-                    }
-                    opt.textContent = displayName;
+                    
+                    const cost = getCost(model);
+                    let displayName = (model.description ? model.description.split(' - ')[0] : model.name).toUpperCase();
+                    
+                    // Add price hint to the name
+                    opt.textContent = `${displayName} [${cost.toFixed(4)}]`;
+                    
                     if (model.name === 'klein-large') opt.selected = true;
                     select.appendChild(opt);
                 });
