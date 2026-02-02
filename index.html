@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Image Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&amp;display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -59,16 +59,16 @@
         .enhance-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .enhance-btn.active { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.1); }
         
-        #settingsMenu {
+        #promptHint {
             display: none;
             position: absolute;
             bottom: 50px;
             right: 0;
             background: #171717;
             border: 1px solid #404040;
-            padding: 12px;
+            padding: 16px;
             border-radius: 12px;
-            width: 240px;
+            width: 320px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
             z-index: 50;
         }
@@ -140,26 +140,13 @@
                         
                         <!-- Enhancement Toolbar -->
                         <div class="flex justify-end mt-2 items-center space-x-2 relative">
-                            <div id="settingsMenu" class="text-left shadow-2xl">
-                                <p class="text-[10px] font-bold text-neutral-500 uppercase mb-2 tracking-widest">Enhancement Model</p>
-                                <div class="space-y-1">
-                                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-neutral-800 rounded group">
-                                        <input type="radio" name="enhanceModel" value="openai" class="accent-emerald-500">
-                                        <span class="text-xs text-neutral-300 group-hover:text-emerald-400">OpenAI GPT-5 (Low)</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-neutral-800 rounded group">
-                                        <input type="radio" name="enhanceModel" value="grok" checked class="accent-emerald-500">
-                                        <span class="text-xs text-neutral-300 group-hover:text-emerald-400">xAI Grok 4 (Med)</span>
-                                    </label>
-                                    <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-neutral-800 rounded group">
-                                        <input type="radio" name="enhanceModel" value="gemini" class="accent-emerald-500">
-                                        <span class="text-xs text-neutral-300 group-hover:text-emerald-400">Google Gemini 3 (High)</span>
-                                    </label>
-                                </div>
+                            <div id="promptHint" class="text-left shadow-2xl">
+                                <p class="text-[10px] font-bold text-emerald-500 uppercase mb-2 tracking-widest">Synthesis Engine Logic</p>
+                                <p id="systemPromptText" class="text-[11px] text-neutral-400 font-mono leading-relaxed bg-black/30 p-3 rounded-lg border border-neutral-800 italic"></p>
                             </div>
                             
-                            <button id="settingsBtn" onclick="toggleSettings()" class="enhance-btn p-2 rounded-lg" title="Enhancement Settings">
-                                <i data-lucide="settings" class="w-4 h-4"></i>
+                            <button id="hintBtn" onclick="toggleHint()" class="enhance-btn p-2 rounded-lg" title="View Enhancement Prompt">
+                                <i data-lucide="help-circle" class="w-4 h-4"></i>
                             </button>
                             <button id="enhanceBtn" onclick="enhancePrompt()" class="enhance-btn px-4 py-2 rounded-lg flex items-center space-x-2 font-mono text-[10px] uppercase font-bold">
                                 <i id="enhanceIcon" data-lucide="sparkles" class="w-3 h-3"></i>
@@ -217,6 +204,7 @@
         let modelCache = [];
         let currentBalance = 0;
         const PAID_MODELS = ['seedream-pro', 'gptimage-large', 'nanobanana-pro'];
+        const ENHANCEMENT_SYSTEM_PROMPT = "You are an expert prompt engineer for Flux and Stable Diffusion. Expand the users input into a single, cohesive, vivid, and detailed artistic prompt. Focus on lighting, textures, and composition. Be descriptive but stay focused on the users core subject. Output ONLY the improved prompt text. No preamble, no quotes.";
 
         function formatBalance(val) {
             return Number(val).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
@@ -225,6 +213,10 @@
         async function fetchMetadata() {
             const select = document.getElementById('modelSelect');
             const pollen = document.getElementById('pollenCount');
+            const hintText = document.getElementById('systemPromptText');
+            
+            hintText.textContent = ENHANCEMENT_SYSTEM_PROMPT;
+
             try {
                 const bRes = await fetch('https://image.1984.ie/balance');
                 const bData = await bRes.json();
@@ -275,7 +267,7 @@
         function updateModelPrice() {
             const select = document.getElementById('modelSelect');
             const priceEl = document.getElementById('modelCost');
-            const remGens = document.getElementById('remGens');
+            const remEl = document.getElementById('remGens');
             const modeEl = document.getElementById('priceMode');
             const selected = modelCache.find(m => m.name === select.value);
             
@@ -286,9 +278,9 @@
                 
                 if (cost > 0) {
                     const remaining = Math.floor(currentBalance / cost);
-                    remGens.textContent = remaining.toLocaleString();
+                    remEl.textContent = remaining.toLocaleString();
                 } else {
-                    remGens.textContent = "∞";
+                    remEl.textContent = "∞";
                 }
                 isTokenBased ? modeEl.classList.remove('hidden') : modeEl.classList.add('hidden');
             }
@@ -305,9 +297,9 @@
             } catch (err) {}
         }
 
-        function toggleSettings() {
-            const menu = document.getElementById('settingsMenu');
-            const btn = document.getElementById('settingsBtn');
+        function toggleHint() {
+            const menu = document.getElementById('promptHint');
+            const btn = document.getElementById('hintBtn');
             const isOpen = menu.style.display === 'block';
             
             menu.style.display = isOpen ? 'none' : 'block';
@@ -323,7 +315,6 @@
             const btn = document.getElementById('enhanceBtn');
             const text = document.getElementById('enhanceText');
             const icon = document.getElementById('enhanceIcon');
-            const model = document.querySelector('input[name="enhanceModel"]:checked').value;
 
             if (!input.value) return;
 
@@ -338,9 +329,9 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: model,
+                        model: "grok",
                         messages: [
-                            { role: 'system', content: 'You are an expert prompt engineer for Flux and Stable Diffusion. Expand the users input into a single, cohesive, vivid, and detailed artistic prompt. Focus on lighting, textures, and composition. Be descriptive but stay focused on the users core subject. Output ONLY the improved prompt text. No preamble, no quotes.' },
+                            { role: 'system', content: ENHANCEMENT_SYSTEM_PROMPT },
                             { role: 'user', content: input.value }
                         ],
                         max_tokens: 500
@@ -348,8 +339,21 @@
                 });
                 
                 const data = await response.json();
-                if (data.choices && data.choices[0].message.content) {
-                    input.value = data.choices[0].message.content.trim();
+                let enhancedText = "";
+                if (data.choices && data.choices[0].message) {
+                    const msg = data.choices[0].message;
+                    if (msg.content) {
+                        enhancedText = msg.content;
+                    } else if (msg.content_blocks) {
+                        enhancedText = msg.content_blocks
+                            .filter(block => block.type === 'text')
+                            .map(block => block.text)
+                            .join('\n');
+                    }
+                }
+
+                if (enhancedText) {
+                    input.value = enhancedText.trim();
                     setTimeout(updateBalanceOnly, 1500);
                 }
             } catch (err) {
