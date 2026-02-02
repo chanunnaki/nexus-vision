@@ -31,17 +31,23 @@
                     <p class="text-neutral-400 font-mono text-xs tracking-widest">[ MULTI-PARAMETER SYNTHESIS ]</p>
                 </div>
                 <div class="text-right bg-neutral-900 px-4 py-2 rounded-lg border border-neutral-800">
-                    <p class="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Pollen</p>
+                    <p class="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Total Pollen</p>
                     <p id="pollenCount" class="text-xl font-mono text-emerald-400">---</p>
                 </div>
             </div>
 
             <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Model Engine</label>
-                    <select id="modelSelect" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
-                        <option value="">Loading Models...</option>
-                    </select>
+                <div class="grid grid-cols-3 gap-4 items-end">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Model Engine</label>
+                        <select id="modelSelect" onchange="updateModelPrice()" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
+                            <option value="">Loading Models...</option>
+                        </select>
+                    </div>
+                    <div class="text-right bg-neutral-900 px-4 py-3 rounded-lg border border-neutral-800">
+                        <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Cost / Gen</p>
+                        <p id="modelCost" class="text-sm font-mono text-emerald-500">0.0000</p>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -90,6 +96,8 @@
     </div>
 
     <script>
+        let modelCache = [];
+
         function formatBalance(val) {
             return Number(val).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
         }
@@ -105,17 +113,30 @@
 
             try {
                 const mRes = await fetch('https://image.1984.ie/models');
-                const models = await mRes.json();
+                modelCache = await mRes.json();
                 select.innerHTML = '';
-                models.forEach(model => {
+                modelCache.forEach(model => {
                     const opt = document.createElement('option');
                     opt.value = model.name;
                     opt.textContent = model.name.toUpperCase();
                     if (model.name === 'klein-large') opt.selected = true;
                     select.appendChild(opt);
                 });
+                updateModelPrice();
             } catch (err) {
                 select.innerHTML = '<option value="klein-large">KLEIN-LARGE</option>';
+            }
+        }
+
+        function updateModelPrice() {
+            const select = document.getElementById('modelSelect');
+            const priceEl = document.getElementById('modelCost');
+            const selected = modelCache.find(m => m.name === select.value);
+            if (selected && selected.pricing) {
+                const cost = selected.pricing.completionImageTokens || 0;
+                priceEl.textContent = Number(cost).toFixed(4);
+            } else {
+                priceEl.textContent = "0.0000";
             }
         }
 
