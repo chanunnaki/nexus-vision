@@ -1,0 +1,11 @@
+# Local secrets
+.env
+*.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Large artifacts
+*.log
+node_modules/
