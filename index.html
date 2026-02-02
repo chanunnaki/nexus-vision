@@ -62,16 +62,16 @@
                 <p class="text-neutral-500 font-mono text-xs tracking-[0.3em] uppercase">[ Sovereign Visual synthesis ]</p>
             </div>
             
-            <div class="inline-flex items-center justify-center bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-3 divide-x divide-neutral-800 shadow-inner">
-                <div class="px-6 text-center">
+            <div class="inline-flex items-center justify-center bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-3 divide-x divide-neutral-800 shadow-inner text-center">
+                <div class="px-6">
                     <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Pollen Wallet</p>
                     <p id="pollenCount" class="text-lg font-mono text-emerald-400">---</p>
                 </div>
-                <div class="px-6 text-center">
+                <div class="px-6">
                     <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Synthesis Cost</p>
                     <p id="modelCost" class="text-lg font-mono text-emerald-500">0.0000</p>
                 </div>
-                <div class="px-6 text-center">
+                <div class="px-6">
                     <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Remaining</p>
                     <p id="remGens" class="text-lg font-mono text-emerald-400">0</p>
                 </div>
@@ -153,6 +153,11 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="mt-8 text-neutral-600 font-mono text-[10px] uppercase tracking-[0.2em]">
+        Powered by <a href="https://pollinations.ai" target="_blank" class="hover:text-emerald-500 transition-colors">Pollinations.ai</a>
+    </footer>
+
     <script>
         let modelCache = [];
         let currentBalance = 0;
@@ -222,17 +227,14 @@
             if (selected && selected.pricing) {
                 const cost = parseFloat(selected.pricing.completionImageTokens) || 0;
                 const isTokenBased = selected.pricing.promptTextTokens > 0;
-                
                 priceEl.textContent = cost.toFixed(4) + (isTokenBased ? "+" : "");
                 
-                // Calculate remaining
                 if (cost > 0) {
                     const remaining = Math.floor(currentBalance / cost);
-                    remEl.textContent = remaining.toLocaleString();
+                    remGens.textContent = remaining.toLocaleString();
                 } else {
-                    remEl.textContent = "∞";
+                    remGens.textContent = "∞";
                 }
-
                 isTokenBased ? modeEl.classList.remove('hidden') : modeEl.classList.add('hidden');
             }
         }
@@ -244,7 +246,7 @@
                 const bData = await bRes.json();
                 currentBalance = bData.balance;
                 pollen.textContent = formatBalance(currentBalance);
-                updateModelPrice(); // Update the remaining count too
+                updateModelPrice();
             } catch (err) {}
         }
 
@@ -294,6 +296,38 @@
                 btn.style.opacity = '1';
             };
             tempImg.src = url;
+        }
+
+        function toggleFullscreen() {
+            const img = document.getElementById('outputImage');
+            if (img.requestFullscreen) img.requestFullscreen();
+            else if (img.webkitRequestFullscreen) img.webkitRequestFullscreen();
+        }
+
+        async function copyToClipboard() {
+            const img = document.getElementById('outputImage');
+            const toast = document.getElementById('copyToast');
+            try {
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+                const item = new ClipboardItem({ [blob.type]: blob });
+                await navigator.clipboard.write([item]);
+                toast.style.opacity = '1';
+                setTimeout(() => toast.style.opacity = '0', 2000);
+            } catch (err) {
+                console.error("Clipboard Error:", err);
+                alert("Direct copy failed. Use the Download button instead.");
+            }
+        }
+
+        function downloadImage() {
+            const img = document.getElementById('outputImage');
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = `nexus-vision-${Date.now()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         fetchMetadata();
