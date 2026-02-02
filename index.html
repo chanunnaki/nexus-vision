@@ -57,6 +57,7 @@
         }
         .enhance-btn:hover:not(:disabled) { border-color: #10b981; color: #10b981; }
         .enhance-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .enhance-btn.active { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.1); }
         
         #settingsMenu {
             display: none;
@@ -143,11 +144,11 @@
                                 <p class="text-[10px] font-bold text-neutral-500 uppercase mb-2 tracking-widest">Enhancement Model</p>
                                 <div class="space-y-1">
                                     <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-neutral-800 rounded group">
-                                        <input type="radio" name="enhanceModel" value="openai" checked class="accent-emerald-500">
+                                        <input type="radio" name="enhanceModel" value="openai" class="accent-emerald-500">
                                         <span class="text-xs text-neutral-300 group-hover:text-emerald-400">OpenAI GPT-5 (Low)</span>
                                     </label>
                                     <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-neutral-800 rounded group">
-                                        <input type="radio" name="enhanceModel" value="grok" class="accent-emerald-500">
+                                        <input type="radio" name="enhanceModel" value="grok" checked class="accent-emerald-500">
                                         <span class="text-xs text-neutral-300 group-hover:text-emerald-400">xAI Grok 4 (Med)</span>
                                     </label>
                                     <label class="flex items-center space-x-2 cursor-pointer p-2 hover:bg-neutral-800 rounded group">
@@ -157,7 +158,7 @@
                                 </div>
                             </div>
                             
-                            <button onclick="toggleSettings()" class="enhance-btn p-2 rounded-lg" title="Enhancement Settings">
+                            <button id="settingsBtn" onclick="toggleSettings()" class="enhance-btn p-2 rounded-lg" title="Enhancement Settings">
                                 <i data-lucide="settings" class="w-4 h-4"></i>
                             </button>
                             <button id="enhanceBtn" onclick="enhancePrompt()" class="enhance-btn px-4 py-2 rounded-lg flex items-center space-x-2 font-mono text-[10px] uppercase font-bold">
@@ -274,7 +275,7 @@
         function updateModelPrice() {
             const select = document.getElementById('modelSelect');
             const priceEl = document.getElementById('modelCost');
-            const remEl = document.getElementById('remGens');
+            const remGens = document.getElementById('remGens');
             const modeEl = document.getElementById('priceMode');
             const selected = modelCache.find(m => m.name === select.value);
             
@@ -306,7 +307,15 @@
 
         function toggleSettings() {
             const menu = document.getElementById('settingsMenu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            const btn = document.getElementById('settingsBtn');
+            const isOpen = menu.style.display === 'block';
+            
+            menu.style.display = isOpen ? 'none' : 'block';
+            if (isOpen) {
+                btn.classList.remove('active');
+            } else {
+                btn.classList.add('active');
+            }
         }
 
         async function enhancePrompt() {
@@ -318,7 +327,6 @@
 
             if (!input.value) return;
 
-            // Light Loading State
             btn.disabled = true;
             input.classList.add('augmenting');
             const originalText = text.textContent;
@@ -332,7 +340,7 @@
                     body: JSON.stringify({
                         model: model,
                         messages: [
-                            { role: 'system', content: 'You are an expert prompt engineer for Flux and Stable Diffusion. Expand the users input into a single, cohesive, vivid, and detailed artistic prompt. Focus on lighting, textures, and composition. Ensure the prompt is a complete sentence or paragraph. Output ONLY the improved prompt text. No preamble, no quotes.' },
+                            { role: 'system', content: 'You are an expert prompt engineer for Flux and Stable Diffusion. Expand the users input into a single, cohesive, vivid, and detailed artistic prompt. Focus on lighting, textures, and composition. Be descriptive but stay focused on the users core subject. Output ONLY the improved prompt text. No preamble, no quotes.' },
                             { role: 'user', content: input.value }
                         ],
                         max_tokens: 500
@@ -342,6 +350,7 @@
                 const data = await response.json();
                 if (data.choices && data.choices[0].message.content) {
                     input.value = data.choices[0].message.content.trim();
+                    setTimeout(updateBalanceOnly, 1500);
                 }
             } catch (err) {
                 alert("Enhancement Failed.");
