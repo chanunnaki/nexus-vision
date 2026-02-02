@@ -18,6 +18,8 @@
         .loader { border-top-color: #10b981; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .token-tag { background: #065f46; color: #34d399; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+        optgroup { background: #171717; color: #10b981; font-weight: bold; font-family: monospace; text-transform: uppercase; letter-spacing: 1px; }
+        option { background: #0a0a0a; color: #e5e5e5; font-weight: normal; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4 lg:p-12">
@@ -101,6 +103,7 @@
 
     <script>
         let modelCache = [];
+        const PAID_MODELS = ['seedream-pro', 'gptimage-large', 'nanobanana-pro'];
 
         function formatBalance(val) {
             return Number(val).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
@@ -121,24 +124,38 @@
                 
                 const getCost = (m) => (m.pricing && m.pricing.completionImageTokens) ? parseFloat(m.pricing.completionImageTokens) : 0;
 
-                modelCache = rawModels
-                    .filter(m => m.output_modalities && m.output_modalities.includes('image'))
-                    .sort((a, b) => getCost(a) - getCost(b));
+                // Full Image Models only
+                const allImageModels = rawModels.filter(m => m.output_modalities && m.output_modalities.includes('image'));
+                modelCache = allImageModels;
+
+                // Categorize
+                const paid = allImageModels.filter(m => PAID_MODELS.includes(m.name)).sort((a, b) => getCost(a) - getCost(b));
+                const token = allImageModels.filter(m => !PAID_MODELS.includes(m.name) && m.pricing && m.pricing.promptTextTokens > 0).sort((a, b) => getCost(a) - getCost(b));
+                const standard = allImageModels.filter(m => !PAID_MODELS.includes(m.name) && (!m.pricing || !m.pricing.promptTextTokens)).sort((a, b) => getCost(a) - getCost(b));
 
                 select.innerHTML = '';
-                modelCache.forEach(model => {
-                    const opt = document.createElement('option');
-                    opt.value = model.name;
-                    
-                    const cost = getCost(model);
-                    const isTokenBased = model.pricing && (model.pricing.promptTextTokens > 0);
-                    
-                    let displayName = (model.description ? model.description.split(' - ')[0] : model.name).toUpperCase();
-                    opt.textContent = `${displayName} [${cost.toFixed(4)}${isTokenBased ? '+' : ''}]`;
-                    
-                    if (model.name === 'klein-large') opt.selected = true;
-                    select.appendChild(opt);
-                });
+
+                const createGroup = (label, list) => {
+                    if (list.length === 0) return;
+                    const group = document.createElement('optgroup');
+                    group.label = label;
+                    list.forEach(model => {
+                        const opt = document.createElement('option');
+                        opt.value = model.name;
+                        const cost = getCost(model);
+                        const isToken = model.pricing && model.pricing.promptTextTokens > 0;
+                        let displayName = (model.description ? model.description.split(' - ')[0] : model.name).toUpperCase();
+                        opt.textContent = `${displayName} [${cost.toFixed(4)}${isToken ? '+' : ''}]`;
+                        if (model.name === 'klein-large') opt.selected = true;
+                        group.appendChild(opt);
+                    });
+                    select.appendChild(group);
+                };
+
+                createGroup('Pollen / Image', standard);
+                createGroup('Pollen / Token', token);
+                createGroup('Paid / Premium', paid);
+
                 updateModelPrice();
             } catch (err) {
                 select.innerHTML = '<option value="klein-large">KLEIN-LARGE</option>';
