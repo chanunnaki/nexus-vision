@@ -6,6 +6,8 @@
     <title>Nexus Image Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #e5e5e5; }
         .nexus-card { background: #171717; border: 1px solid #262626; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); }
@@ -14,12 +16,20 @@
         .nexus-btn { background: #10b981; transition: transform 0.1s, background-color 0.2s; }
         .nexus-btn:hover { background: #059669; }
         .nexus-btn:active { transform: scale(0.98); }
-        .image-container { min-height: 512px; border: 2px dashed #262626; }
+        .image-container { min-height: 512px; border: 2px dashed #262626; position: relative; }
         .loader { border-top-color: #10b981; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .token-tag { background: #065f46; color: #34d399; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
         optgroup { background: #171717; color: #10b981; font-weight: bold; font-family: monospace; text-transform: uppercase; letter-spacing: 1px; }
         option { background: #0a0a0a; color: #e5e5e5; font-weight: normal; }
+        
+        .action-btn { 
+            background: rgba(0, 0, 0, 0.4); 
+            backdrop-filter: blur(4px); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: rgba(16, 185, 129, 0.4); border-color: #10b981; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4 lg:p-12">
@@ -89,12 +99,24 @@
         </div>
 
         <!-- Result Column -->
-        <div id="resultArea" class="image-container rounded-xl overflow-hidden flex items-center justify-center relative bg-black shadow-inner border border-neutral-800">
+        <div id="resultArea" class="image-container rounded-xl overflow-hidden flex items-center justify-center bg-black shadow-inner border border-neutral-800 group">
             <div id="loadingOverlay" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center space-y-4 z-10">
                 <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
                 <p class="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
             </div>
+            
             <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork">
+            
+            <!-- Floating Actions -->
+            <div id="floatingActions" class="hidden absolute bottom-4 right-4 flex space-x-2 z-20 group-hover:flex">
+                <button onclick="copyToClipboard()" class="action-btn p-3 rounded-lg text-white" title="Copy to Clipboard">
+                    <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+                <button onclick="toggleFullscreen()" class="action-btn p-3 rounded-lg text-white" title="Fullscreen">
+                    <i data-lucide="maximize" class="w-5 h-5"></i>
+                </button>
+            </div>
+
             <div id="placeholderText" class="text-neutral-700 text-center p-8 font-mono text-xs max-w-xs uppercase leading-loose text-emerald-900/50">
                 [ Waiting for parameters to be injected into the stream ]
             </div>
@@ -124,11 +146,9 @@
                 
                 const getCost = (m) => (m.pricing && m.pricing.completionImageTokens) ? parseFloat(m.pricing.completionImageTokens) : 0;
 
-                // Full Image Models only
                 const allImageModels = rawModels.filter(m => m.output_modalities && m.output_modalities.includes('image'));
                 modelCache = allImageModels;
 
-                // Categorize
                 const paid = allImageModels.filter(m => PAID_MODELS.includes(m.name)).sort((a, b) => getCost(a) - getCost(b));
                 const token = allImageModels.filter(m => !PAID_MODELS.includes(m.name) && m.pricing && m.pricing.promptTextTokens > 0).sort((a, b) => getCost(a) - getCost(b));
                 const standard = allImageModels.filter(m => !PAID_MODELS.includes(m.name) && (!m.pricing || !m.pricing.promptTextTokens)).sort((a, b) => getCost(a) - getCost(b));
@@ -157,6 +177,7 @@
                 createGroup('Paid / Premium', paid);
 
                 updateModelPrice();
+                lucide.createIcons();
             } catch (err) {
                 select.innerHTML = '<option value="klein-large">KLEIN-LARGE</option>';
             }
@@ -171,16 +192,8 @@
             if (selected && selected.pricing) {
                 const cost = selected.pricing.completionImageTokens || 0;
                 const isTokenBased = selected.pricing.promptTextTokens > 0;
-                
                 priceEl.textContent = Number(cost).toFixed(4) + (isTokenBased ? "+" : "");
-                if (isTokenBased) {
-                    modeEl.classList.remove('hidden');
-                } else {
-                    modeEl.classList.add('hidden');
-                }
-            } else {
-                priceEl.textContent = "0.0000";
-                modeEl.classList.add('hidden');
+                isTokenBased ? modeEl.classList.remove('hidden') : modeEl.classList.add('hidden');
             }
         }
 
@@ -204,12 +217,14 @@
             const overlay = document.getElementById('loadingOverlay');
             const placeholder = document.getElementById('placeholderText');
             const btn = document.getElementById('genBtn');
+            const actions = document.getElementById('floatingActions');
 
             if (!promptVal) return;
 
             overlay.classList.remove('hidden');
             img.classList.add('hidden');
             placeholder.classList.add('hidden');
+            actions.classList.add('hidden');
             btn.disabled = true;
             btn.style.opacity = '0.5';
 
@@ -222,22 +237,47 @@
             const url = `https://image.1984.ie/${prompt}?model=${model}&seed=${seed}&width=${width}&height=${height}&negative_prompt=${negative}`;
 
             const tempImg = new Image();
+            tempImg.crossOrigin = "anonymous"; // Important for clipboard
             tempImg.onload = function() {
                 img.src = url;
                 img.classList.remove('hidden');
                 overlay.classList.add('hidden');
+                actions.classList.remove('hidden');
                 btn.disabled = false;
                 btn.style.opacity = '1';
                 setTimeout(updateBalanceOnly, 2000);
             };
             tempImg.onerror = function() {
-                alert("Synthesis Failure. Check network parameters.");
+                alert("Synthesis Failure.");
                 overlay.classList.add('hidden');
                 placeholder.classList.remove('hidden');
                 btn.disabled = false;
                 btn.style.opacity = '1';
             };
             tempImg.src = url;
+        }
+
+        function toggleFullscreen() {
+            const img = document.getElementById('outputImage');
+            if (img.requestFullscreen) {
+                img.requestFullscreen();
+            } else if (img.webkitRequestFullscreen) {
+                img.webkitRequestFullscreen();
+            }
+        }
+
+        async function copyToClipboard() {
+            const img = document.getElementById('outputImage');
+            try {
+                const response = await fetch(img.src);
+                const blob = await response.blob();
+                await navigator.clipboard.write([
+                    new ClipboardItem({ [blob.type]: blob })
+                ]);
+                alert("Image copied to clipboard!");
+            } catch (err) {
+                alert("Failed to copy image. Secure context (HTTPS) required.");
+            }
         }
 
         fetchMetadata();
