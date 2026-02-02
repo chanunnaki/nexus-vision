@@ -17,6 +17,7 @@
         .image-container { min-height: 512px; border: 2px dashed #262626; }
         .loader { border-top-color: #10b981; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .token-tag { background: #065f46; color: #34d399; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4 lg:p-12">
@@ -39,13 +40,16 @@
             <div class="space-y-4">
                 <div class="grid grid-cols-3 gap-4 items-end">
                     <div class="col-span-2">
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Model Engine (Sorted: Cheap → Pro)</label>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest">Model Engine</label>
+                            <span id="priceMode" class="hidden token-tag uppercase">Token-Based</span>
+                        </div>
                         <select id="modelSelect" onchange="updateModelPrice()" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
                             <option value="">Loading Models...</option>
                         </select>
                     </div>
                     <div class="text-right bg-neutral-900 px-4 py-3 rounded-lg border border-neutral-800">
-                        <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Cost / Gen</p>
+                        <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Base Cost</p>
                         <p id="modelCost" class="text-sm font-mono text-emerald-500">0.0000</p>
                     </div>
                 </div>
@@ -89,7 +93,7 @@
                 <p class="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
             </div>
             <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork">
-            <div id="placeholderText" class="text-neutral-700 text-center p-8 font-mono text-xs max-w-xs uppercase leading-loose">
+            <div id="placeholderText" class="text-neutral-700 text-center p-8 font-mono text-xs max-w-xs uppercase leading-loose text-emerald-900/50">
                 [ Waiting for parameters to be injected into the stream ]
             </div>
         </div>
@@ -115,10 +119,8 @@
                 const mRes = await fetch('https://image.1984.ie/models');
                 const rawModels = await mRes.json();
                 
-                // Helper to get cost safely
                 const getCost = (m) => (m.pricing && m.pricing.completionImageTokens) ? parseFloat(m.pricing.completionImageTokens) : 0;
 
-                // Sort and clean models
                 modelCache = rawModels
                     .filter(m => m.output_modalities && m.output_modalities.includes('image'))
                     .sort((a, b) => getCost(a) - getCost(b));
@@ -129,10 +131,10 @@
                     opt.value = model.name;
                     
                     const cost = getCost(model);
-                    let displayName = (model.description ? model.description.split(' - ')[0] : model.name).toUpperCase();
+                    const isTokenBased = model.pricing && (model.pricing.promptTextTokens > 0);
                     
-                    // Add price hint to the name
-                    opt.textContent = `${displayName} [${cost.toFixed(4)}]`;
+                    let displayName = (model.description ? model.description.split(' - ')[0] : model.name).toUpperCase();
+                    opt.textContent = `${displayName} [${cost.toFixed(4)}${isTokenBased ? '+' : ''}]`;
                     
                     if (model.name === 'klein-large') opt.selected = true;
                     select.appendChild(opt);
@@ -146,12 +148,22 @@
         function updateModelPrice() {
             const select = document.getElementById('modelSelect');
             const priceEl = document.getElementById('modelCost');
+            const modeEl = document.getElementById('priceMode');
             const selected = modelCache.find(m => m.name === select.value);
+            
             if (selected && selected.pricing) {
                 const cost = selected.pricing.completionImageTokens || 0;
-                priceEl.textContent = Number(cost).toFixed(4);
+                const isTokenBased = selected.pricing.promptTextTokens > 0;
+                
+                priceEl.textContent = Number(cost).toFixed(4) + (isTokenBased ? "+" : "");
+                if (isTokenBased) {
+                    modeEl.classList.remove('hidden');
+                } else {
+                    modeEl.classList.add('hidden');
+                }
             } else {
                 priceEl.textContent = "0.0000";
+                modeEl.classList.add('hidden');
             }
         }
 
@@ -169,7 +181,7 @@
             const promptVal = document.getElementById('promptInput').value;
             const negPrompt = document.getElementById('negativeInput').value;
             const ratio = document.getElementById('aspectRatio').value.split('x');
-            const seedVal = document.getElementById('seedInput').value;
+            const seedInput = document.getElementById('seedInput').value;
             
             const img = document.getElementById('outputImage');
             const overlay = document.getElementById('loadingOverlay');
@@ -188,7 +200,7 @@
             const negative = encodeURIComponent(negPrompt);
             const width = ratio[0];
             const height = ratio[1];
-            const seed = seedVal === "-1" ? Math.floor(Math.random() * 1000000000) : seedVal;
+            const seed = seedInput === "-1" ? Math.floor(Math.random() * 1000000000) : seedInput;
 
             const url = `https://image.1984.ie/${prompt}?model=${model}&seed=${seed}&width=${width}&height=${height}&negative_prompt=${negative}`;
 
