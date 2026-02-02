@@ -51,26 +51,38 @@
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4 lg:p-12">
 
-    <div id="copyToast" class="font-mono uppercase tracking-widest">Vision Copied to Buffer</div>
+    <div id="copyToast" class="font-mono uppercase tracking-widest text-xs">Vision Copied to Buffer</div>
 
-    <div class="w-full max-w-5xl nexus-card rounded-2xl p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div class="w-full max-w-5xl nexus-card rounded-2xl p-8 lg:p-12">
         
-        <!-- Controls Column -->
-        <div class="space-y-6">
-            <div class="flex justify-between items-start">
-                <div class="space-y-1">
-                    <h1 class="text-3xl font-bold tracking-tight text-white font-mono uppercase text-emerald-500">Nexus // Vision</h1>
-                    <p class="text-neutral-400 font-mono text-xs tracking-widest">[ MULTI-PARAMETER SYNTHESIS ]</p>
+        <!-- Header & Stats Unified -->
+        <div class="mb-10 text-center space-y-6">
+            <div class="space-y-1">
+                <h1 class="text-4xl font-black tracking-tighter text-white font-mono uppercase text-emerald-500 italic">Nexus // Vision</h1>
+                <p class="text-neutral-500 font-mono text-xs tracking-[0.3em] uppercase">[ Sovereign Visual synthesis ]</p>
+            </div>
+            
+            <div class="inline-flex items-center justify-center bg-neutral-900 border border-neutral-800 rounded-xl px-2 py-3 divide-x divide-neutral-800 shadow-inner">
+                <div class="px-6 text-center">
+                    <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Pollen Wallet</p>
+                    <p id="pollenCount" class="text-lg font-mono text-emerald-400">---</p>
                 </div>
-                <div class="text-right bg-neutral-900 px-4 py-2 rounded-lg border border-neutral-800">
-                    <p class="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Total Pollen</p>
-                    <p id="pollenCount" class="text-xl font-mono text-emerald-400">---</p>
+                <div class="px-6 text-center">
+                    <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Synthesis Cost</p>
+                    <p id="modelCost" class="text-lg font-mono text-emerald-500">0.0000</p>
+                </div>
+                <div class="px-6 text-center">
+                    <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Remaining</p>
+                    <p id="remGens" class="text-lg font-mono text-emerald-400">0</p>
                 </div>
             </div>
+        </div>
 
-            <div class="space-y-4">
-                <div class="grid grid-cols-3 gap-4 items-end">
-                    <div class="col-span-2">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Controls Column -->
+            <div class="space-y-6">
+                <div class="space-y-4">
+                    <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest">Model Engine</label>
                             <span id="priceMode" class="hidden token-tag uppercase">Token-Based</span>
@@ -79,74 +91,71 @@
                             <option value="">Loading Models...</option>
                         </select>
                     </div>
-                    <div class="text-right bg-neutral-900 px-4 py-3 rounded-lg border border-neutral-800">
-                        <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Base Cost</p>
-                        <p id="modelCost" class="text-sm font-mono text-emerald-500">0.0000</p>
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Aspect Ratio</label>
+                            <select id="aspectRatio" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
+                                <option value="1024x1024">Square (1:1)</option>
+                                <option value="1280x720">Wide (16:9)</option>
+                                <option value="720x1280">Tall (9:16)</option>
+                                <option value="1024x768">Classic (4:3)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Fixed Seed</label>
+                            <input id="seedInput" type="number" class="w-full nexus-input rounded-lg p-3 text-white text-sm" placeholder="Random (-1)" value="-1">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Aspect Ratio</label>
-                        <select id="aspectRatio" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
-                            <option value="1024x1024">Square (1:1)</option>
-                            <option value="1280x720">Wide (16:9)</option>
-                            <option value="720x1280">Tall (9:16)</option>
-                            <option value="1024x768">Classic (4:3)</option>
-                        </select>
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Positive Prompt</label>
+                        <textarea id="promptInput" rows="4" class="w-full nexus-input rounded-lg p-3 text-white placeholder-neutral-700 text-sm" placeholder="Describe the vision..."></textarea>
                     </div>
+
                     <div>
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Fixed Seed</label>
-                        <input id="seedInput" type="number" class="w-full nexus-input rounded-lg p-3 text-white text-sm" placeholder="Random (-1)" value="-1">
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Negative Prompt (Exclude)</label>
+                        <input id="negativeInput" type="text" class="w-full nexus-input rounded-lg p-3 text-white placeholder-neutral-700 text-sm" placeholder="blurry, distorted, text...">
                     </div>
+
+                    <button onclick="generateImage()" id="genBtn" class="w-full nexus-btn text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center space-x-2 uppercase tracking-widest mt-4">
+                        <span>Engage Synthesis</span>
+                    </button>
                 </div>
-
-                <div>
-                    <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Positive Prompt</label>
-                    <textarea id="promptInput" rows="4" class="w-full nexus-input rounded-lg p-3 text-white placeholder-neutral-700 text-sm" placeholder="Describe the vision..."></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Negative Prompt (Exclude)</label>
-                    <input id="negativeInput" type="text" class="w-full nexus-input rounded-lg p-3 text-white placeholder-neutral-700 text-sm" placeholder="blurry, distorted, text...">
-                </div>
-
-                <button onclick="generateImage()" id="genBtn" class="w-full nexus-btn text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center space-x-2 uppercase tracking-widest mt-4">
-                    <span>Engage Synthesis</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Result Column -->
-        <div id="resultArea" class="image-container rounded-xl overflow-hidden flex items-center justify-center bg-black shadow-inner border border-neutral-800 group">
-            <div id="loadingOverlay" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center space-y-4 z-10">
-                <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
-                <p class="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
-            </div>
-            
-            <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork" crossorigin="anonymous">
-            
-            <!-- Floating Actions -->
-            <div id="floatingActions" class="hidden absolute bottom-4 right-4 flex space-x-2 z-20 group-hover:flex">
-                <button onclick="copyToClipboard()" class="action-btn p-3 rounded-lg text-white" title="Copy to Clipboard">
-                    <i data-lucide="copy" class="w-5 h-5"></i>
-                </button>
-                <button onclick="downloadImage()" class="action-btn p-3 rounded-lg text-white" title="Download Image">
-                    <i data-lucide="download" class="w-5 h-5"></i>
-                </button>
-                <button onclick="toggleFullscreen()" class="action-btn p-3 rounded-lg text-white" title="Fullscreen">
-                    <i data-lucide="maximize" class="w-5 h-5"></i>
-                </button>
             </div>
 
-            <div id="placeholderText" class="text-neutral-700 text-center p-8 font-mono text-xs max-w-xs uppercase leading-loose text-emerald-900/50">
-                [ Waiting for parameters to be injected into the stream ]
+            <!-- Result Column -->
+            <div id="resultArea" class="image-container rounded-xl overflow-hidden flex items-center justify-center bg-black shadow-inner border border-neutral-800 group">
+                <div id="loadingOverlay" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center space-y-4 z-10">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
+                    <p class="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
+                </div>
+                
+                <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork" crossorigin="anonymous">
+                
+                <!-- Floating Actions -->
+                <div id="floatingActions" class="hidden absolute bottom-4 right-4 flex space-x-2 z-20 group-hover:flex">
+                    <button onclick="copyToClipboard()" class="action-btn p-3 rounded-lg text-white" title="Copy to Clipboard">
+                        <i data-lucide="copy" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="downloadImage()" class="action-btn p-3 rounded-lg text-white" title="Download Image">
+                        <i data-lucide="download" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="toggleFullscreen()" class="action-btn p-3 rounded-lg text-white" title="Fullscreen">
+                        <i data-lucide="maximize" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div id="placeholderText" class="text-neutral-700 text-center p-8 font-mono text-xs max-w-xs uppercase leading-loose text-emerald-900/50">
+                    [ Waiting for parameters to be injected into the stream ]
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         let modelCache = [];
+        let currentBalance = 0;
         const PAID_MODELS = ['seedream-pro', 'gptimage-large', 'nanobanana-pro'];
 
         function formatBalance(val) {
@@ -159,13 +168,15 @@
             try {
                 const bRes = await fetch('https://image.1984.ie/balance');
                 const bData = await bRes.json();
-                pollen.textContent = formatBalance(bData.balance);
+                currentBalance = bData.balance;
+                pollen.textContent = formatBalance(currentBalance);
             } catch (err) { pollen.textContent = "ERR"; }
 
             try {
                 const mRes = await fetch('https://image.1984.ie/models');
                 const rawModels = await mRes.json();
                 const getCost = (m) => (m.pricing && m.pricing.completionImageTokens) ? parseFloat(m.pricing.completionImageTokens) : 0;
+
                 const allImageModels = rawModels.filter(m => m.output_modalities && m.output_modalities.includes('image'));
                 modelCache = allImageModels;
 
@@ -185,7 +196,7 @@
                         const isToken = model.pricing && model.pricing.promptTextTokens > 0;
                         let displayName = (model.description ? model.description.split(' - ')[0] : model.name).toUpperCase();
                         opt.textContent = `${displayName} [${cost.toFixed(4)}${isToken ? '+' : ''}]`;
-                        if (model.name === 'klein-large') opt.selected = true;
+                        if (model.name === 'flux') opt.selected = true;
                         group.appendChild(opt);
                     });
                     select.appendChild(group);
@@ -197,19 +208,31 @@
                 updateModelPrice();
                 lucide.createIcons();
             } catch (err) {
-                select.innerHTML = '<option value="klein-large">KLEIN-LARGE</option>';
+                select.innerHTML = '<option value="flux">FLUX SCHNELL</option>';
             }
         }
 
         function updateModelPrice() {
             const select = document.getElementById('modelSelect');
             const priceEl = document.getElementById('modelCost');
+            const remEl = document.getElementById('remGens');
             const modeEl = document.getElementById('priceMode');
             const selected = modelCache.find(m => m.name === select.value);
+            
             if (selected && selected.pricing) {
-                const cost = selected.pricing.completionImageTokens || 0;
+                const cost = parseFloat(selected.pricing.completionImageTokens) || 0;
                 const isTokenBased = selected.pricing.promptTextTokens > 0;
-                priceEl.textContent = Number(cost).toFixed(4) + (isTokenBased ? "+" : "");
+                
+                priceEl.textContent = cost.toFixed(4) + (isTokenBased ? "+" : "");
+                
+                // Calculate remaining
+                if (cost > 0) {
+                    const remaining = Math.floor(currentBalance / cost);
+                    remEl.textContent = remaining.toLocaleString();
+                } else {
+                    remEl.textContent = "∞";
+                }
+
                 isTokenBased ? modeEl.classList.remove('hidden') : modeEl.classList.add('hidden');
             }
         }
@@ -219,7 +242,9 @@
             try {
                 const bRes = await fetch('https://image.1984.ie/balance');
                 const bData = await bRes.json();
-                pollen.textContent = formatBalance(bData.balance);
+                currentBalance = bData.balance;
+                pollen.textContent = formatBalance(currentBalance);
+                updateModelPrice(); // Update the remaining count too
             } catch (err) {}
         }
 
@@ -269,42 +294,6 @@
                 btn.style.opacity = '1';
             };
             tempImg.src = url;
-        }
-
-        function toggleFullscreen() {
-            const img = document.getElementById('outputImage');
-            if (img.requestFullscreen) img.requestFullscreen();
-            else if (img.webkitRequestFullscreen) img.webkitRequestFullscreen();
-        }
-
-        async function copyToClipboard() {
-            const img = document.getElementById('outputImage');
-            const toast = document.getElementById('copyToast');
-            try {
-                const response = await fetch(img.src);
-                const blob = await response.blob();
-                
-                // Fallback for different browser clipboard implementations
-                const item = new ClipboardItem({ [blob.type]: blob });
-                await navigator.clipboard.write([item]);
-                
-                // Success feedback
-                toast.style.opacity = '1';
-                setTimeout(() => toast.style.opacity = '0', 2000);
-            } catch (err) {
-                console.error("Clipboard Error:", err);
-                alert("Direct copy failed. Use the Download button instead.");
-            }
-        }
-
-        function downloadImage() {
-            const img = document.getElementById('outputImage');
-            const link = document.createElement('a');
-            link.href = img.src;
-            link.download = `nexus-vision-${Date.now()}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
         fetchMetadata();
