@@ -18,9 +18,10 @@
 
 - [x] **Dynamic Model Discovery**: Automatically fetches the latest visual engines from Pollinations.ai, categorized by cost and capability (Image, Token-Based, Pro).
 - [x] **Neural Prompt Augmentation**: Integrated "Enhance Vision" tool powered by xAI Grok 4 (Medium) to transform simple ideas into complex, cinematic prompts.
+- [x] **Adaptive Canvas**: The result area dynamically morphs its aspect ratio to match your selection (Square, Wide, Tall) for perfect spatial pre-visualization.
 - [x] **Temporal Archive**: An Apple Photo Booth-style horizontal filmstrip that saves your history and allows one-tap restoration of all parameters (Prompt, Seed, Ratio, Model).
+- [x] **Granular Archive Management**: Selective pruning of your history with individual entry deletion and one-tap archive wiping.
 - [x] **Live Pollen Wallet**: Real-time high-precision tracking of your Pollinations.ai credits and dynamic "Remaining Synthesis" calculation per model.
-- [x] **Multi-Parameter Synthesis**: Full control over Aspect Ratio (Square, Wide, Tall), Fixed Seeds, and Negative Prompts.
 - [x] **One-Tap Actions**: Copy generated visions directly to your system buffer or download them for permanent storage.
 
 ## 🏗️ Architecture

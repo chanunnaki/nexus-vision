@@ -17,7 +17,7 @@
         .nexus-btn { background: #10b981; transition: transform 0.1s, background-color 0.2s; }
         .nexus-btn:hover { background: #059669; }
         .nexus-btn:active { transform: scale(0.98); }
-        .image-container { min-height: 512px; border: 2px dashed #262626; position: relative; }
+        .image-container { min-height: 400px; max-height: 70vh; border: 2px dashed #262626; position: relative; transition: aspect-ratio 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
         .loader { border-top-color: #10b981; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .token-tag { background: #065f46; color: #34d399; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
@@ -157,7 +157,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             <!-- Controls Column -->
             <div class="space-y-6">
                 <div class="space-y-4">
@@ -174,7 +174,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Aspect Ratio</label>
-                            <select id="aspectRatio" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
+                            <select id="aspectRatio" onchange="updateLayoutRatio()" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
                                 <option value="1024x1024">Square (1:1)</option>
                                 <option value="1280x720">Wide (16:9)</option>
                                 <option value="720x1280">Tall (9:16)</option>
@@ -220,7 +220,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
             </div>
 
             <!-- Result Column -->
-            <div id="resultArea" class="image-container rounded-xl overflow-hidden flex items-center justify-center bg-black shadow-inner border border-neutral-800 group">
+            <div id="resultArea" style="aspect-ratio: 1/1;" class="image-container rounded-xl overflow-hidden flex items-center justify-center bg-black shadow-inner border border-neutral-800 group mx-auto w-full">
                 <div id="loadingOverlay" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center space-y-4 z-10">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12"></div>
                     <p id="loadingMsg" class="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
@@ -347,6 +347,13 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 else remGens.textContent = "∞";
                 isTokenBased ? modeEl.classList.remove('hidden') : modeEl.classList.add('hidden');
             }
+        }
+
+        function updateLayoutRatio() {
+            const ratio = document.getElementById('aspectRatio').value;
+            const resArea = document.getElementById('resultArea');
+            const dims = ratio.split('x');
+            resArea.style.aspectRatio = `${dims[0]} / ${dims[1]}`;
         }
 
         async function updateBalanceOnly() {
@@ -499,11 +506,15 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
             document.getElementById('negativeInput').value = item.negative || '';
             document.getElementById('aspectRatio').value = item.ratio;
             document.getElementById('seedInput').value = item.seed;
+            
+            // Trigger UI updates
+            updateLayoutRatio();
+            updateModelPrice();
+            
             document.getElementById('outputImage').src = item.url;
             document.getElementById('outputImage').classList.remove('hidden');
             document.getElementById('placeholderText').classList.add('hidden');
             document.getElementById('floatingActions').classList.remove('hidden');
-            updateModelPrice();
         }
 
         function deleteFromHistory(index) {
