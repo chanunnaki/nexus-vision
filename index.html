@@ -24,15 +24,34 @@
         option { background: #0a0a0a; color: #e5e5e5; font-weight: normal; }
         
         .action-btn { 
-            background: rgba(0, 0, 0, 0.4); 
-            backdrop-filter: blur(4px); 
+            background: rgba(0, 0, 0, 0.6); 
+            backdrop-filter: blur(8px); 
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.2s;
         }
-        .action-btn:hover { background: rgba(16, 185, 129, 0.4); border-color: #10b981; }
+        .action-btn:hover { background: rgba(16, 185, 129, 0.6); border-color: #10b981; transform: translateY(-2px); }
+        .action-btn:active { transform: translateY(0); }
+        
+        #copyToast {
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4 lg:p-12">
+
+    <div id="copyToast" class="font-mono uppercase tracking-widest">Vision Copied to Buffer</div>
 
     <div class="w-full max-w-5xl nexus-card rounded-2xl p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-12">
         
@@ -105,12 +124,15 @@
                 <p class="text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
             </div>
             
-            <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork">
+            <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork" crossorigin="anonymous">
             
             <!-- Floating Actions -->
             <div id="floatingActions" class="hidden absolute bottom-4 right-4 flex space-x-2 z-20 group-hover:flex">
                 <button onclick="copyToClipboard()" class="action-btn p-3 rounded-lg text-white" title="Copy to Clipboard">
                     <i data-lucide="copy" class="w-5 h-5"></i>
+                </button>
+                <button onclick="downloadImage()" class="action-btn p-3 rounded-lg text-white" title="Download Image">
+                    <i data-lucide="download" class="w-5 h-5"></i>
                 </button>
                 <button onclick="toggleFullscreen()" class="action-btn p-3 rounded-lg text-white" title="Fullscreen">
                     <i data-lucide="maximize" class="w-5 h-5"></i>
@@ -143,9 +165,7 @@
             try {
                 const mRes = await fetch('https://image.1984.ie/models');
                 const rawModels = await mRes.json();
-                
                 const getCost = (m) => (m.pricing && m.pricing.completionImageTokens) ? parseFloat(m.pricing.completionImageTokens) : 0;
-
                 const allImageModels = rawModels.filter(m => m.output_modalities && m.output_modalities.includes('image'));
                 modelCache = allImageModels;
 
@@ -154,7 +174,6 @@
                 const standard = allImageModels.filter(m => !PAID_MODELS.includes(m.name) && (!m.pricing || !m.pricing.promptTextTokens)).sort((a, b) => getCost(a) - getCost(b));
 
                 select.innerHTML = '';
-
                 const createGroup = (label, list) => {
                     if (list.length === 0) return;
                     const group = document.createElement('optgroup');
@@ -175,7 +194,6 @@
                 createGroup('Pollen / Image', standard);
                 createGroup('Pollen / Token', token);
                 createGroup('Paid / Premium', paid);
-
                 updateModelPrice();
                 lucide.createIcons();
             } catch (err) {
@@ -188,7 +206,6 @@
             const priceEl = document.getElementById('modelCost');
             const modeEl = document.getElementById('priceMode');
             const selected = modelCache.find(m => m.name === select.value);
-            
             if (selected && selected.pricing) {
                 const cost = selected.pricing.completionImageTokens || 0;
                 const isTokenBased = selected.pricing.promptTextTokens > 0;
@@ -212,7 +229,6 @@
             const negPrompt = document.getElementById('negativeInput').value;
             const ratio = document.getElementById('aspectRatio').value.split('x');
             const seedInput = document.getElementById('seedInput').value;
-            
             const img = document.getElementById('outputImage');
             const overlay = document.getElementById('loadingOverlay');
             const placeholder = document.getElementById('placeholderText');
@@ -220,7 +236,6 @@
             const actions = document.getElementById('floatingActions');
 
             if (!promptVal) return;
-
             overlay.classList.remove('hidden');
             img.classList.add('hidden');
             placeholder.classList.add('hidden');
@@ -233,11 +248,10 @@
             const width = ratio[0];
             const height = ratio[1];
             const seed = seedInput === "-1" ? Math.floor(Math.random() * 1000000000) : seedInput;
-
             const url = `https://image.1984.ie/${prompt}?model=${model}&seed=${seed}&width=${width}&height=${height}&negative_prompt=${negative}`;
 
             const tempImg = new Image();
-            tempImg.crossOrigin = "anonymous"; // Important for clipboard
+            tempImg.crossOrigin = "anonymous";
             tempImg.onload = function() {
                 img.src = url;
                 img.classList.remove('hidden');
@@ -259,25 +273,38 @@
 
         function toggleFullscreen() {
             const img = document.getElementById('outputImage');
-            if (img.requestFullscreen) {
-                img.requestFullscreen();
-            } else if (img.webkitRequestFullscreen) {
-                img.webkitRequestFullscreen();
-            }
+            if (img.requestFullscreen) img.requestFullscreen();
+            else if (img.webkitRequestFullscreen) img.webkitRequestFullscreen();
         }
 
         async function copyToClipboard() {
             const img = document.getElementById('outputImage');
+            const toast = document.getElementById('copyToast');
             try {
                 const response = await fetch(img.src);
                 const blob = await response.blob();
-                await navigator.clipboard.write([
-                    new ClipboardItem({ [blob.type]: blob })
-                ]);
-                alert("Image copied to clipboard!");
+                
+                // Fallback for different browser clipboard implementations
+                const item = new ClipboardItem({ [blob.type]: blob });
+                await navigator.clipboard.write([item]);
+                
+                // Success feedback
+                toast.style.opacity = '1';
+                setTimeout(() => toast.style.opacity = '0', 2000);
             } catch (err) {
-                alert("Failed to copy image. Secure context (HTTPS) required.");
+                console.error("Clipboard Error:", err);
+                alert("Direct copy failed. Use the Download button instead.");
             }
+        }
+
+        function downloadImage() {
+            const img = document.getElementById('outputImage');
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = `nexus-vision-${Date.now()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         fetchMetadata();
