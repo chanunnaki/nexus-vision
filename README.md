@@ -2,6 +2,8 @@
 
 ### [ Sovereign AI Image Synthesis Lab ]
 
+![Nexus Vision Workspace](screenshot.png)
+
 **Nexus Vision** is a high-performance, dark-themed visual workstation designed for rapid AI image generation. It follows the "Sovereign Proxy" philosophy: providing maximum utility with absolute minimum bloat, operating entirely without external dependencies or heavy frameworks.
 
 ---
