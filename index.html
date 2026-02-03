@@ -8,16 +8,45 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        // Theme initialization
+        if (localStorage.getItem('nexus_theme') === 'light') {
+            document.documentElement.classList.add('light');
+        }
+        
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        nexus: {
+                            emerald: '#10b981',
+                            dark: '#0a0a0a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #e5e5e5; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        
+        /* Dark Mode (Default) */
+        html { background-color: #0a0a0a; color: #e5e5e5; }
         .nexus-card { background: #171717; border: 1px solid #262626; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); }
-        .nexus-input { background: #0a0a0a; border: 1px solid #404040; transition: all 0.3s; }
+        .nexus-input { background: #0a0a0a; border: 1px solid #404040; color: white; transition: all 0.3s; }
         .nexus-input:focus { border-color: #10b981; outline: none; }
+        
+        /* Step 1: Basic Light Mode Overrides */
+        html.light { background-color: #f5f5f5; color: #171717; }
+        html.light .nexus-card { background: #ffffff; border: 1px solid #e5e5e5; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
         .nexus-input.augmenting { border-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-        .nexus-btn { background: #10b981; transition: transform 0.1s, background-color 0.2s; }
+        .nexus-btn { background: #10b981; transition: transform 0.1s, background-color 0.2s; color: white; }
         .nexus-btn:hover { background: #059669; }
         .nexus-btn:active { transform: scale(0.98); }
         .image-container { min-height: 400px; max-height: 70vh; border: 2px dashed #262626; position: relative; transition: aspect-ratio 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
         .loader { border-top-color: #10b981; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .token-tag { background: #065f46; color: #34d399; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
@@ -31,7 +60,6 @@
             transition: all 0.2s;
         }
         .action-btn:hover { background: rgba(16, 185, 129, 0.6); border-color: #10b981; transform: translateY(-2px); }
-        .action-btn:active { transform: translateY(0); }
         
         #copyToast {
             background: #10b981;
@@ -48,6 +76,20 @@
             pointer-events: none;
             z-index: 100;
         }
+
+        .ascii-banner {
+            font-family: monospace;
+            line-height: 1.1;
+            color: #10b981;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+            font-size: 8px;
+            user-select: none;
+        }
+        @media (max-width: 640px) { .ascii-banner { font-size: 4.5px; } }
+
+        .filmstrip::-webkit-scrollbar { height: 6px; }
+        .filmstrip::-webkit-scrollbar-track { background: transparent; }
+        .filmstrip::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
 
         .enhance-btn {
             background: #171717;
@@ -73,15 +115,7 @@
             z-index: 50;
         }
 
-        /* Filmstrip Styling */
-        .filmstrip {
-            scrollbar-width: thin;
-            scrollbar-color: #262626 #0a0a0a;
-        }
-        .filmstrip::-webkit-scrollbar { height: 6px; }
-        .filmstrip::-webkit-scrollbar-track { background: #0a0a0a; }
-        .filmstrip::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
-        .history-item { 
+        .history-item {
             flex: 0 0 120px;
             height: 120px;
             border: 2px solid #262626;
@@ -107,27 +141,20 @@
         }
         .history-item:hover .delete-entry-btn { opacity: 1; }
         .delete-entry-btn:hover { color: #ef4444; background: rgba(0, 0, 0, 0.9); }
-
-        .ascii-banner {
-            font-family: monospace;
-            line-height: 1.1;
-            color: #10b981;
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
-            font-size: 8px; /* Standard size for desktop */
-            user-select: none;
-        }
-        @media (max-width: 640px) {
-            .ascii-banner { font-size: 4.5px; }
-        }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4 lg:p-12">
+<body class="flex flex-col items-center justify-center min-h-screen p-4 lg:p-12 relative">
+
+    <!-- Theme Toggle -->
+    <button onclick="toggleTheme()" class="absolute top-6 right-6 p-3 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-emerald-500 hover:border-emerald-500/50 transition-all shadow-lg z-50">
+        <i id="themeIcon" data-lucide="moon" class="w-5 h-5"></i>
+    </button>
 
     <div id="copyToast" class="font-mono uppercase tracking-widest text-xs">Vision Copied to Buffer</div>
 
     <!-- Raw ASCII Header -->
     <div class="mb-8 text-center space-y-4">
-        <pre class="ascii-banner inline-block text-left">
+        <pre class="ascii-banner inline-block text-left text-emerald-500">
     _/      _/                                                      _/    _/      _/      _/  _/            _/                     
    _/_/    _/    _/_/    _/    _/  _/    _/    _/_/_/            _/    _/        _/      _/        _/_/_/        _/_/    _/_/_/    
   _/  _/  _/  _/_/_/_/    _/_/    _/    _/  _/_/              _/    _/          _/      _/  _/  _/_/      _/  _/    _/  _/    _/   
@@ -137,7 +164,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
         <p class="text-neutral-500 font-mono text-[10px] tracking-[0.4em] uppercase text-center w-full">[ Sovereign Visual synthesis ]</p>
     </div>
 
-    <div class="w-full max-w-5xl nexus-card rounded-2xl p-8 lg:p-12 mb-8">
+    <div class="w-full max-w-5xl nexus-card rounded-2xl p-8 lg:p-12 mb-8 relative">
         
         <!-- Stats Unified -->
         <div class="mb-10 text-center">
@@ -166,7 +193,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                             <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest">Model Engine</label>
                             <span id="priceMode" class="hidden token-tag uppercase">Token-Based</span>
                         </div>
-                        <select id="modelSelect" onchange="updateModelPrice()" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
+                        <select id="modelSelect" onchange="updateModelPrice()" class="w-full nexus-input rounded-lg p-3 text-sm">
                             <option value="">Loading Models...</option>
                         </select>
                     </div>
@@ -174,7 +201,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Aspect Ratio</label>
-                            <select id="aspectRatio" onchange="updateLayoutRatio()" class="w-full nexus-input rounded-lg p-3 text-white text-sm">
+                            <select id="aspectRatio" onchange="updateLayoutRatio()" class="w-full nexus-input rounded-lg p-3 text-sm">
                                 <option value="1024x1024">Square (1:1)</option>
                                 <option value="1280x720">Wide (16:9)</option>
                                 <option value="720x1280">Tall (9:16)</option>
@@ -183,19 +210,19 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                         </div>
                         <div>
                             <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Fixed Seed</label>
-                            <input id="seedInput" type="number" class="w-full nexus-input rounded-lg p-3 text-white text-sm" placeholder="Random (-1)" value="-1">
+                            <input id="seedInput" type="number" class="w-full nexus-input rounded-lg p-3 text-sm" placeholder="Random (-1)" value="-1">
                         </div>
                     </div>
 
                     <div class="relative">
                         <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Positive Prompt</label>
-                        <textarea id="promptInput" rows="4" class="w-full nexus-input rounded-lg p-3 text-white placeholder-neutral-700 text-sm" placeholder="Describe the vision..."></textarea>
+                        <textarea id="promptInput" rows="4" class="w-full nexus-input rounded-lg p-3 placeholder-neutral-700 text-sm" placeholder="Describe the vision..."></textarea>
                         
                         <!-- Enhancement Toolbar -->
                         <div class="flex justify-end mt-2 items-center space-x-2 relative">
                             <div id="promptHint" class="text-left shadow-2xl">
                                 <p class="text-[10px] font-bold text-emerald-500 uppercase mb-2 tracking-widest">Synthesis Engine Logic</p>
-                                <p id="systemPromptText" class="text-[11px] text-neutral-400 font-mono leading-relaxed bg-black/30 p-3 rounded-lg border border-neutral-800 italic"></p>
+                                <p id="systemPromptText" class="text-[11px] font-mono leading-relaxed p-3 rounded-lg border italic"></p>
                             </div>
                             
                             <button id="hintBtn" onclick="toggleHint()" class="enhance-btn p-2 rounded-lg" title="View Enhancement Prompt">
@@ -210,7 +237,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
 
                     <div>
                         <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Negative Prompt (Exclude)</label>
-                        <input id="negativeInput" type="text" class="w-full nexus-input rounded-lg p-3 text-white placeholder-neutral-700 text-sm" placeholder="blurry, distorted, text...">
+                        <input id="negativeInput" type="text" class="w-full nexus-input rounded-lg p-3 placeholder-neutral-700 text-sm" placeholder="blurry, distorted, text...">
                     </div>
 
                     <button onclick="generateImage()" id="genBtn" class="w-full nexus-btn text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center space-x-2 uppercase tracking-widest mt-4">
@@ -326,9 +353,26 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 createGroup('Paid / Premium', paid);
                 updateModelPrice();
                 lucide.createIcons();
+                updateThemeUI();
                 renderHistory();
             } catch (err) {
                 select.innerHTML = '<option value="flux">FLUX SCHNELL</option>';
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isLight = html.classList.toggle('light');
+            localStorage.setItem('nexus_theme', isLight ? 'light' : 'dark');
+            updateThemeUI();
+        }
+
+        function updateThemeUI() {
+            const isLight = document.documentElement.classList.contains('light');
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                icon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
+                lucide.createIcons();
             }
         }
 
@@ -372,7 +416,11 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
             const btn = document.getElementById('hintBtn');
             const isOpen = menu.style.display === 'block';
             menu.style.display = isOpen ? 'none' : 'block';
-            isOpen ? btn.classList.remove('active') : btn.classList.add('active');
+            if (isOpen) {
+                btn.classList.remove('active');
+            } else {
+                btn.classList.add('active');
+            }
         }
 
         async function enhancePrompt() {
@@ -506,11 +554,8 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
             document.getElementById('negativeInput').value = item.negative || '';
             document.getElementById('aspectRatio').value = item.ratio;
             document.getElementById('seedInput').value = item.seed;
-            
-            // Trigger UI updates
             updateLayoutRatio();
             updateModelPrice();
-            
             document.getElementById('outputImage').src = item.url;
             document.getElementById('outputImage').classList.remove('hidden');
             document.getElementById('placeholderText').classList.add('hidden');
