@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-neutral-50 dark:bg-[#0a0a0a] text-neutral-900 dark:text-neutral-200 min-h-screen flex flex-col items-center justify-center p-4 lg:p-12 relative text-left transition-all duration-300 ease-in-out;
+        font-family: 'Inter', sans-serif;
+    }
+}
+
+.ascii-banner {
+    font-family: monospace;
+    line-height: 1.1;
+    user-select: none;
+    font-size: 8px;
+}
+
+@media (max-width: 640px) {
+    .ascii-banner { font-size: 4.5px; }
+}
+
+.filmstrip::-webkit-scrollbar { height: 6px; }
+.filmstrip::-webkit-scrollbar-track { background: transparent; }
+.filmstrip::-webkit-scrollbar-thumb { background: #404040; border-radius: 10px; }
+.dark .filmstrip::-webkit-scrollbar-thumb { background: #262626; }
+
+.nexus-input:focus {
+    @apply border-[#10b981] outline-none;
+}
+
+.augmenting {
+    @apply border-[#10b981] !important;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+#promptHint {
+    display: none;
+    position: absolute;
+    bottom: 50px;
+    right: 0;
+    width: 320px;
+    z-index: 50;
+}
+
+.neural-canvas {
+    min-height: 400px;
+    max-height: 70vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: aspect-ratio 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nexus-card {
+    @apply bg-white dark:bg-[#171717] border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-xl relative;
+}
+
+.action-btn {
+    @apply bg-black/60 backdrop-blur-md border border-white/10 transition-all duration-200;
+}
+
+.action-btn:hover {
+    @apply bg-emerald-500/60 border-emerald-500 -translate-y-0.5;
+}

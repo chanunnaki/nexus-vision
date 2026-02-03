@@ -4,59 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexus Image Lab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Vite Entry Points -->
+    <script type="module" src="/src/main.js"></script>
+    <link rel="stylesheet" href="/src/style.css">
+    
     <script>
-        // Immediate theme check
+        // Immediate theme check to prevent flash
         if (localStorage.getItem('nexus_theme') === 'light') {
             document.documentElement.classList.remove('dark');
         }
-        
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { nexus: { emerald: '#10b981' } }
-                }
-            }
-        }
     </script>
-    <style>
-        body { font-family: 'Inter', sans-serif; transition: all 0.3s ease; }
-        .ascii-banner { font-family: monospace; line-height: 1.1; user-select: none; font-size: 8px; }
-        @media (max-width: 640px) { .ascii-banner { font-size: 4.5px; } }
-        
-        .filmstrip::-webkit-scrollbar { height: 6px; }
-        .filmstrip::-webkit-scrollbar-track { background: transparent; }
-        .filmstrip::-webkit-scrollbar-thumb { background: #404040; border-radius: 10px; }
-        .dark .filmstrip::-webkit-scrollbar-thumb { background: #262626; }
-
-        .nexus-input:focus { border-color: #10b981; outline: none; }
-        .augmenting { border-color: #10b981 !important; box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-        
-        #promptHint {
-            display: none;
-            position: absolute;
-            bottom: 50px;
-            right: 0;
-            width: 320px;
-            z-index: 50;
-        }
-
-        .neural-canvas {
-            min-height: 400px;
-            max-height: 70vh;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            transition: aspect-ratio 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-    </style>
 </head>
 <body class="bg-neutral-50 dark:bg-[#0a0a0a] text-neutral-900 dark:text-neutral-200 min-h-screen flex flex-col items-center justify-center p-4 lg:p-12 relative text-left">
 
@@ -74,14 +35,14 @@
         <pre class="ascii-banner inline-block text-left">
     _/      _/                                                      _/    _/      _/      _/  _/            _/                     
    _/_/    _/    _/_/    _/    _/  _/    _/    _/_/_/            _/    _/        _/      _/        _/_/_/        _/_/    _/_/_/    
-  _/  _/  _/  _/_/_/_/    _/_/    _/    _/  _/_/              _/    _/          _/      _/  _/  _/_/      _/  _/    _/  _/    _/   
+  _/  _/  _/  _/_/_/_/    _/_/    _/    _/  _/_/              _/    _/          _/      _/  _/_/      _/  _/    _/  _/    _/   
  _/    _/_/  _/        _/    _/  _/    _/      _/_/        _/    _/              _/  _/    _/      _/_/  _/  _/    _/  _/    _/    
 _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                  _/      _/  _/_/_/    _/    _/_/    _/    _/ 
         </pre>
         <p class="text-neutral-500 dark:text-neutral-500 font-mono text-[10px] tracking-[0.4em] uppercase text-center w-full">[ Sovereign Visual synthesis ]</p>
     </div>
 
-    <div class="w-full max-w-5xl nexus-card rounded-2xl p-8 lg:p-12 mb-8 relative">
+    <div class="w-full max-w-5xl nexus-card p-8 lg:p-12 mb-8">
         
         <!-- Stats Unified -->
         <div class="mb-10 text-center">
@@ -106,7 +67,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 <div class="space-y-4">
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest text-left">Model Engine</label>
+                            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest">Model Engine</label>
                             <span id="priceMode" class="hidden bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Token-Based</span>
                         </div>
                         <select id="modelSelect" onchange="updateModelPrice()" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white">
@@ -116,7 +77,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Aspect Ratio</label>
+                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Aspect Ratio</label>
                             <select id="aspectRatio" onchange="updateLayoutRatio()" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white">
                                 <option value="1024x1024">Square (1:1)</option>
                                 <option value="1280x720">Wide (16:9)</option>
@@ -125,13 +86,13 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Fixed Seed</label>
+                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Fixed Seed</label>
                             <input id="seedInput" type="number" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white" placeholder="Random (-1)" value="-1">
                         </div>
                     </div>
 
                     <div class="relative">
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Positive Prompt</label>
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Positive Prompt</label>
                         <textarea id="promptInput" rows="4" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white placeholder-neutral-400 dark:placeholder-neutral-700" placeholder="Describe the vision..."></textarea>
                         
                         <div class="flex justify-end mt-2 items-center space-x-2 relative">
@@ -150,7 +111,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Negative Prompt (Exclude)</label>
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Negative Prompt (Exclude)</label>
                         <input id="negativeInput" type="text" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white placeholder-neutral-400 dark:placeholder-neutral-700" placeholder="blurry, distorted, text...">
                     </div>
 
@@ -160,17 +121,21 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 </div>
             </div>
 
-            <div id="resultArea" style="aspect-ratio: 1/1;" class="neural-canvas bg-neutral-100 dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-xl group mx-auto w-full transition-all duration-500">
+            <!-- Result Canvas -->
+            <div id="resultArea" style="aspect-ratio: 1/1;" class="neural-canvas bg-neutral-100 dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-xl group mx-auto shadow-inner transition-all duration-500">
                 <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 dark:bg-black/80 flex flex-col items-center justify-center space-y-4 z-10">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-neutral-200 dark:border-neutral-800 h-12 w-12"></div>
                     <p id="loadingMsg" class="text-emerald-600 dark:text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
                 </div>
+                
                 <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork" crossorigin="anonymous">
+                
                 <div id="floatingActions" class="hidden absolute bottom-4 right-4 flex space-x-2 z-20 group-hover:flex animate-in fade-in">
                     <button onclick="copyToClipboard()" class="action-btn p-3 rounded-lg text-white" title="Copy to Clipboard"><i data-lucide="copy" class="w-5 h-5"></i></button>
                     <button onclick="downloadImage()" class="action-btn p-3 rounded-lg text-white" title="Download Image"><i data-lucide="download" class="w-5 h-5"></i></button>
                     <button onclick="toggleFullscreen()" class="action-btn p-3 rounded-lg text-white" title="Fullscreen"><i data-lucide="maximize" class="w-5 h-5"></i></button>
                 </div>
+
                 <div id="placeholderText" class="text-neutral-400 dark:text-neutral-700 text-center p-8 font-mono text-xs max-w-xs uppercase leading-loose text-center">
                     [ Waiting for parameters ]
                 </div>
@@ -196,225 +161,5 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
         Powered by <a href="https://pollinations.ai" target="_blank" class="hover:text-emerald-500 transition-colors">Pollinations.ai</a>
     </footer>
 
-    <script>
-        let modelCache = [];
-        let currentBalance = 0;
-        let generationHistory = JSON.parse(localStorage.getItem('nexus_history') || '[]');
-        const ENHANCEMENT_SYSTEM_PROMPT = "You are an expert prompt engineer. Expand the input into a single vivid paragraph. Output ONLY the prompt. No preamble.";
-
-        function formatBalance(val) {
-            return Number(val).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
-        }
-
-        async function updateBalanceOnly() {
-            try {
-                const res = await fetch(`https://image.1984.ie/balance?t=${Date.now()}`);
-                const data = await res.json();
-                currentBalance = data.balance;
-                document.getElementById('pollenCount').textContent = formatBalance(currentBalance);
-                updateModelPrice();
-            } catch (err) {}
-        }
-
-        async function fetchMetadata() {
-            document.getElementById('systemPromptText').textContent = ENHANCEMENT_SYSTEM_PROMPT;
-            await updateBalanceOnly();
-
-            try {
-                const mRes = await fetch('https://image.1984.ie/models');
-                const rawModels = await mRes.json();
-                const getCost = (m) => (m.pricing && m.pricing.completionImageTokens) ? parseFloat(m.pricing.completionImageTokens) : 0;
-                modelCache = rawModels.filter(m => m.output_modalities?.includes('image')).sort((a,b) => getCost(a) - getCost(b));
-                
-                const select = document.getElementById('modelSelect');
-                select.innerHTML = '';
-                const cats = { 'Pollen / Image': m => !m.pricing?.promptTextTokens, 'Pollen / Token': m => m.pricing?.promptTextTokens > 0 };
-                Object.keys(cats).forEach(label => {
-                    const group = document.createElement('optgroup');
-                    group.label = label;
-                    modelCache.filter(cats[label]).forEach(m => {
-                        const opt = document.createElement('option');
-                        opt.value = m.name;
-                        const cost = getCost(m);
-                        const name = (m.description ? m.description.split(' - ')[0] : m.name).toUpperCase();
-                        opt.textContent = `${name} [${cost.toFixed(4)}${m.pricing?.promptTextTokens ? '+' : ''}]`;
-                        if (m.name === 'flux') opt.selected = true;
-                        group.appendChild(opt);
-                    });
-                    select.appendChild(group);
-                });
-                updateModelPrice();
-                lucide.createIcons();
-                updateThemeUI();
-                
-                // Initialize history
-                const strip = document.getElementById('filmstrip');
-                strip.addEventListener('click', handleHistoryClick);
-                renderHistory();
-            } catch (e) {
-                document.getElementById('modelSelect').innerHTML = '<option value="flux">FLUX SCHNELL</option>';
-            }
-        }
-
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('nexus_theme', isDark ? 'dark' : 'light');
-            updateThemeUI();
-        }
-
-        function updateThemeUI() {
-            const currentIsDark = document.documentElement.classList.contains('dark');
-            const icon = document.getElementById('themeIcon');
-            if (icon) {
-                icon.setAttribute('data-lucide', currentIsDark ? 'moon' : 'sun');
-                lucide.createIcons();
-            }
-        }
-
-        function updateModelPrice() {
-            const selected = modelCache.find(m => m.name === document.getElementById('modelSelect').value);
-            if (selected && selected.pricing) {
-                const cost = parseFloat(selected.pricing.completionImageTokens) || 0;
-                document.getElementById('modelCost').textContent = cost.toFixed(4) + (selected.pricing.promptTextTokens ? "+" : "");
-                document.getElementById('remGens').textContent = cost > 0 ? Math.floor(currentBalance/cost).toLocaleString() : "∞";
-                selected.pricing.promptTextTokens ? document.getElementById('priceMode').classList.remove('hidden') : document.getElementById('priceMode').classList.add('hidden');
-            }
-        }
-
-        function updateLayoutRatio() {
-            const ratio = document.getElementById('aspectRatio').value.split('x');
-            document.getElementById('resultArea').style.aspectRatio = `${ratio[0]} / ${ratio[1]}`;
-        }
-
-        function toggleHint() {
-            const el = document.getElementById('promptHint');
-            const btn = document.getElementById('hintBtn');
-            const isOpen = el.style.display === 'block';
-            el.style.display = isOpen ? 'none' : 'block';
-            isOpen ? btn.classList.remove('bg-emerald-500/10', 'text-emerald-500', 'border-emerald-500') : btn.classList.add('bg-emerald-500/10', 'text-emerald-500', 'border-emerald-500');
-        }
-
-        async function enhancePrompt() {
-            const input = document.getElementById('promptInput');
-            if (!input.value) return;
-            const btn = document.getElementById('enhanceBtn');
-            const text = document.getElementById('enhanceText');
-            const icon = document.getElementById('enhanceIcon');
-            btn.disabled = true; input.classList.add('augmenting');
-            const orig = text.textContent; text.textContent = "Augmenting..."; icon.classList.add('animate-spin');
-            try {
-                const res = await fetch('https://image.1984.ie/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: "grok", messages: [{role:'system', content: ENHANCEMENT_SYSTEM_PROMPT}, {role:'user', content: input.value}], max_tokens: 500 })
-                });
-                const data = await res.json();
-                let txt = data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.content_blocks?.filter(b=>b.type==='text').map(b=>b.text).join('\n');
-                if (txt) { input.value = txt.trim(); setTimeout(updateBalanceOnly, 1500); }
-            } catch (e) {} finally { btn.disabled = false; input.classList.remove('augmenting'); text.textContent = orig; icon.classList.remove('animate-spin'); }
-        }
-
-        function generateImage() {
-            const model = document.getElementById('modelSelect').value;
-            const promptVal = document.getElementById('promptInput').value;
-            const neg = document.getElementById('negativeInput').value;
-            const ratio = document.getElementById('aspectRatio').value;
-            const seedIn = document.getElementById('seedInput').value;
-            if (!promptVal) return;
-            const overlay = document.getElementById('loadingOverlay');
-            const actions = document.getElementById('floatingActions');
-            overlay.classList.remove('hidden'); actions.classList.add('hidden');
-            const dims = ratio.split('x');
-            const seed = seedIn === "-1" ? Math.floor(Math.random()*1000000000) : seedIn;
-            const url = `https://image.1984.ie/${encodeURIComponent(promptVal)}?model=${model}&seed=${seed}&width=${dims[0]}&height=${dims[1]}&negative_prompt=${encodeURIComponent(neg)}`;
-            const img = new Image(); img.crossOrigin = "anonymous";
-            img.onload = () => {
-                document.getElementById('outputImage').src = url;
-                document.getElementById('outputImage').classList.remove('hidden');
-                document.getElementById('placeholderText').classList.add('hidden');
-                overlay.classList.add('hidden'); actions.classList.remove('hidden');
-                addToHistory({ url, model, prompt: promptVal, negative: neg, ratio, seed });
-                setTimeout(updateBalanceOnly, 2000);
-            };
-            img.src = url;
-        }
-
-        function addToHistory(item) {
-            generationHistory.unshift(item);
-            if (generationHistory.length > 50) generationHistory.pop();
-            localStorage.setItem('nexus_history', JSON.stringify(generationHistory));
-            const strip = document.getElementById('filmstrip');
-            strip.prepend(createHistoryElement(item));
-            if (strip.children.length > 50) strip.lastElementChild.remove();
-            document.getElementById('historyCount').textContent = generationHistory.length;
-            lucide.createIcons();
-        }
-
-        function createHistoryElement(item) {
-            const div = document.createElement('div');
-            div.className = 'history-item group relative rounded-lg shadow-lg border-2 border-neutral-200 dark:border-neutral-800 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200 shrink-0 overflow-hidden w-[120px] h-[120px] cursor-pointer';
-            div.innerHTML = `
-                <img src="${item.url}" loading="lazy" class="w-full h-full object-cover pointer-events-none" />
-                <button class="delete-btn absolute top-1 right-1 p-1 bg-black/60 text-white/60 hover:text-red-500 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 z-20">
-                    <i data-lucide="x" class="w-3 h-3"></i>
-                </button>
-            `;
-            return div;
-        }
-
-        function renderHistory() {
-            const strip = document.getElementById('filmstrip');
-            strip.innerHTML = '';
-            const fragment = document.createDocumentFragment();
-            generationHistory.forEach(item => fragment.appendChild(createHistoryElement(item)));
-            strip.appendChild(fragment);
-            document.getElementById('historyCount').textContent = generationHistory.length;
-            lucide.createIcons();
-        }
-
-        function handleHistoryClick(e) {
-            const itemEl = e.target.closest('.history-item');
-            if (!itemEl) return;
-            const index = Array.from(itemEl.parentNode.children).indexOf(itemEl);
-            if (e.target.closest('.delete-btn')) {
-                generationHistory.splice(index, 1);
-                localStorage.setItem('nexus_history', JSON.stringify(generationHistory));
-                itemEl.remove();
-                document.getElementById('historyCount').textContent = generationHistory.length;
-                return;
-            }
-            restoreFromHistory(index);
-        }
-
-        function restoreFromHistory(index) {
-            const item = generationHistory[index];
-            if (!item) return;
-            document.getElementById('modelSelect').value = item.model;
-            document.getElementById('promptInput').value = item.prompt;
-            document.getElementById('negativeInput').value = item.negative || '';
-            document.getElementById('aspectRatio').value = item.ratio;
-            document.getElementById('seedInput').value = item.seed;
-            updateLayoutRatio(); updateModelPrice();
-            const main = document.getElementById('outputImage');
-            main.src = item.url; main.classList.remove('hidden');
-            document.getElementById('placeholderText').classList.add('hidden');
-            document.getElementById('floatingActions').classList.remove('hidden');
-        }
-
-        function clearHistory() { if (confirm("Wipe Archive?")) { generationHistory = []; localStorage.removeItem('nexus_history'); renderHistory(); } }
-        function toggleFullscreen() { const img = document.getElementById('outputImage'); if (img.requestFullscreen) img.requestFullscreen(); else if (img.webkitRequestFullscreen) img.webkitRequestFullscreen(); }
-        async function copyToClipboard() {
-            const toast = document.getElementById('copyToast');
-            try {
-                const res = await fetch(document.getElementById('outputImage').src);
-                const blob = await res.blob();
-                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-                toast.classList.remove('opacity-0'); setTimeout(() => toast.classList.add('opacity-0'), 2000);
-            } catch (e) { alert("Copy failed. Try Download."); }
-        }
-        function downloadImage() { const a = document.createElement('a'); a.href = document.getElementById('outputImage').src; a.download = `vision-${Date.now()}.jpg`; a.click(); }
-
-        fetchMetadata();
-    </script>
 </body>
 </html>
