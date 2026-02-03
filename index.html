@@ -9,6 +9,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
+        // Immediate theme check
         if (localStorage.getItem('nexus_theme') === 'light') {
             document.documentElement.classList.remove('dark');
         }
@@ -44,7 +45,6 @@
             z-index: 50;
         }
 
-        /* Result Area Container Stabilization */
         .neural-canvas {
             min-height: 400px;
             max-height: 70vh;
@@ -70,8 +70,8 @@
     </div>
 
     <!-- Header -->
-    <div class="mb-8 text-center space-y-4">
-        <pre class="ascii-banner inline-block text-left text-emerald-500">
+    <div class="mb-8 text-center space-y-4 text-emerald-500">
+        <pre class="ascii-banner inline-block text-left">
     _/      _/                                                      _/    _/      _/      _/  _/            _/                     
    _/_/    _/    _/_/    _/    _/  _/    _/    _/_/_/            _/    _/        _/      _/        _/_/_/        _/_/    _/_/_/    
   _/  _/  _/  _/_/_/_/    _/_/    _/    _/  _/_/              _/    _/          _/      _/  _/  _/_/      _/  _/    _/  _/    _/   
@@ -81,12 +81,11 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
         <p class="text-neutral-500 dark:text-neutral-500 font-mono text-[10px] tracking-[0.4em] uppercase text-center w-full">[ Sovereign Visual synthesis ]</p>
     </div>
 
-    <!-- Main Card -->
-    <div class="w-full max-w-5xl bg-white dark:bg-[#171717] border border-neutral-200 dark:border-neutral-800 rounded-2xl p-8 lg:p-12 mb-8 shadow-xl relative text-left">
+    <div class="w-full max-w-5xl nexus-card rounded-2xl p-8 lg:p-12 mb-8 relative">
         
-        <!-- Stats Bar -->
+        <!-- Stats Unified -->
         <div class="mb-10 text-center">
-            <div class="inline-flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl px-2 py-3 divide-x divide-neutral-200 dark:divide-neutral-800 shadow-inner">
+            <div class="inline-flex items-center justify-center bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl px-2 py-3 divide-x divide-neutral-200 dark:divide-neutral-800 shadow-inner text-center">
                 <div class="px-6 text-center">
                     <p class="text-[9px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Pollen Wallet</p>
                     <p id="pollenCount" class="text-lg font-mono text-emerald-600 dark:text-emerald-400">---</p>
@@ -103,12 +102,11 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            <!-- Controls -->
             <div class="space-y-6">
-                <div class="space-y-4 text-left">
+                <div class="space-y-4">
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest">Model Engine</label>
+                            <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest text-left">Model Engine</label>
                             <span id="priceMode" class="hidden bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Token-Based</span>
                         </div>
                         <select id="modelSelect" onchange="updateModelPrice()" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white">
@@ -118,7 +116,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Aspect Ratio</label>
+                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Aspect Ratio</label>
                             <select id="aspectRatio" onchange="updateLayoutRatio()" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white">
                                 <option value="1024x1024">Square (1:1)</option>
                                 <option value="1280x720">Wide (16:9)</option>
@@ -127,13 +125,13 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Fixed Seed</label>
+                            <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Fixed Seed</label>
                             <input id="seedInput" type="number" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white" placeholder="Random (-1)" value="-1">
                         </div>
                     </div>
 
                     <div class="relative">
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Positive Prompt</label>
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Positive Prompt</label>
                         <textarea id="promptInput" rows="4" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white placeholder-neutral-400 dark:placeholder-neutral-700" placeholder="Describe the vision..."></textarea>
                         
                         <div class="flex justify-end mt-2 items-center space-x-2 relative">
@@ -152,7 +150,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest">Negative Prompt (Exclude)</label>
+                        <label class="block text-xs font-bold mb-2 text-neutral-500 uppercase tracking-widest text-left">Negative Prompt (Exclude)</label>
                         <input id="negativeInput" type="text" class="w-full bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-300 dark:border-neutral-700 p-3 rounded-lg text-sm dark:text-white placeholder-neutral-400 dark:placeholder-neutral-700" placeholder="blurry, distorted, text...">
                     </div>
 
@@ -162,22 +160,17 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 </div>
             </div>
 
-            <!-- Result Canvas -->
-            <div id="resultArea" style="aspect-ratio: 1/1;" class="neural-canvas bg-neutral-100 dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-xl group mx-auto shadow-inner">
+            <div id="resultArea" style="aspect-ratio: 1/1;" class="neural-canvas bg-neutral-100 dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-xl group mx-auto w-full transition-all duration-500">
                 <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 dark:bg-black/80 flex flex-col items-center justify-center space-y-4 z-10">
                     <div class="loader ease-linear rounded-full border-4 border-t-4 border-neutral-200 dark:border-neutral-800 h-12 w-12"></div>
                     <p id="loadingMsg" class="text-emerald-600 dark:text-emerald-400 font-mono text-sm animate-pulse uppercase tracking-widest text-center px-4">Modulating Neural Lattice...</p>
                 </div>
-                
                 <img id="outputImage" class="max-w-full max-h-full object-contain hidden" src="" alt="Generated artwork" crossorigin="anonymous">
-                
-                <!-- Floating Actions Overlay (Inside Canvas) -->
                 <div id="floatingActions" class="hidden absolute bottom-4 right-4 flex space-x-2 z-20 group-hover:flex animate-in fade-in">
                     <button onclick="copyToClipboard()" class="action-btn p-3 rounded-lg text-white" title="Copy to Clipboard"><i data-lucide="copy" class="w-5 h-5"></i></button>
                     <button onclick="downloadImage()" class="action-btn p-3 rounded-lg text-white" title="Download Image"><i data-lucide="download" class="w-5 h-5"></i></button>
                     <button onclick="toggleFullscreen()" class="action-btn p-3 rounded-lg text-white" title="Fullscreen"><i data-lucide="maximize" class="w-5 h-5"></i></button>
                 </div>
-
                 <div id="placeholderText" class="text-neutral-400 dark:text-neutral-700 text-center p-8 font-mono text-xs max-w-xs uppercase leading-loose text-center">
                     [ Waiting for parameters ]
                 </div>
@@ -213,14 +206,19 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
             return Number(val).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
         }
 
+        async function updateBalanceOnly() {
+            try {
+                const res = await fetch(`https://image.1984.ie/balance?t=${Date.now()}`);
+                const data = await res.json();
+                currentBalance = data.balance;
+                document.getElementById('pollenCount').textContent = formatBalance(currentBalance);
+                updateModelPrice();
+            } catch (err) {}
+        }
+
         async function fetchMetadata() {
             document.getElementById('systemPromptText').textContent = ENHANCEMENT_SYSTEM_PROMPT;
-            try {
-                const bRes = await fetch('https://image.1984.ie/balance');
-                const bData = await bRes.json();
-                currentBalance = bData.balance;
-                document.getElementById('pollenCount').textContent = formatBalance(currentBalance);
-            } catch (e) {}
+            await updateBalanceOnly();
 
             try {
                 const mRes = await fetch('https://image.1984.ie/models');
@@ -248,6 +246,10 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 updateModelPrice();
                 lucide.createIcons();
                 updateThemeUI();
+                
+                // Initialize history
+                const strip = document.getElementById('filmstrip');
+                strip.addEventListener('click', handleHistoryClick);
                 renderHistory();
             } catch (e) {
                 document.getElementById('modelSelect').innerHTML = '<option value="flux">FLUX SCHNELL</option>';
@@ -261,10 +263,10 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
         }
 
         function updateThemeUI() {
-            const isDark = document.documentElement.classList.contains('dark');
+            const currentIsDark = document.documentElement.classList.contains('dark');
             const icon = document.getElementById('themeIcon');
             if (icon) {
-                icon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
+                icon.setAttribute('data-lucide', currentIsDark ? 'moon' : 'sun');
                 lucide.createIcons();
             }
         }
@@ -308,7 +310,7 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 });
                 const data = await res.json();
                 let txt = data.choices?.[0]?.message?.content || data.choices?.[0]?.message?.content_blocks?.filter(b=>b.type==='text').map(b=>b.text).join('\n');
-                if (txt) { input.value = txt.trim(); setTimeout(updateBalanceOnly, 1000); }
+                if (txt) { input.value = txt.trim(); setTimeout(updateBalanceOnly, 1500); }
             } catch (e) {} finally { btn.disabled = false; input.classList.remove('augmenting'); text.textContent = orig; icon.classList.remove('animate-spin'); }
         }
 
@@ -331,40 +333,62 @@ _/      _/    _/_/_/  _/    _/    _/_/_/  _/_/_/        _/    _/                
                 document.getElementById('outputImage').classList.remove('hidden');
                 document.getElementById('placeholderText').classList.add('hidden');
                 overlay.classList.add('hidden'); actions.classList.remove('hidden');
-                saveToHistory({ url, model, prompt: promptVal, negative: neg, ratio, seed });
+                addToHistory({ url, model, prompt: promptVal, negative: neg, ratio, seed });
                 setTimeout(updateBalanceOnly, 2000);
             };
             img.src = url;
         }
 
-        function saveToHistory(item) {
+        function addToHistory(item) {
             generationHistory.unshift(item);
             if (generationHistory.length > 50) generationHistory.pop();
             localStorage.setItem('nexus_history', JSON.stringify(generationHistory));
-            renderHistory();
+            const strip = document.getElementById('filmstrip');
+            strip.prepend(createHistoryElement(item));
+            if (strip.children.length > 50) strip.lastElementChild.remove();
+            document.getElementById('historyCount').textContent = generationHistory.length;
+            lucide.createIcons();
+        }
+
+        function createHistoryElement(item) {
+            const div = document.createElement('div');
+            div.className = 'history-item group relative rounded-lg shadow-lg border-2 border-neutral-200 dark:border-neutral-800 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200 shrink-0 overflow-hidden w-[120px] h-[120px] cursor-pointer';
+            div.innerHTML = `
+                <img src="${item.url}" loading="lazy" class="w-full h-full object-cover pointer-events-none" />
+                <button class="delete-btn absolute top-1 right-1 p-1 bg-black/60 text-white/60 hover:text-red-500 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 z-20">
+                    <i data-lucide="x" class="w-3 h-3"></i>
+                </button>
+            `;
+            return div;
         }
 
         function renderHistory() {
             const strip = document.getElementById('filmstrip');
-            document.getElementById('historyCount').textContent = generationHistory.length;
             strip.innerHTML = '';
-            generationHistory.forEach((item, index) => {
-                const div = document.createElement('div');
-                div.className = 'group relative rounded-lg shadow-lg border-2 border-neutral-200 dark:border-neutral-800 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200 shrink-0 overflow-hidden w-[120px] h-[120px] cursor-pointer';
-                const img = document.createElement('img'); img.src = item.url; img.loading = "lazy";
-                img.className = 'w-full h-full object-cover';
-                img.onclick = () => restoreFromHistory(index);
-                const del = document.createElement('button');
-                del.className = 'absolute top-1 right-1 p-1 bg-black/60 text-white/60 hover:text-red-500 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 z-20';
-                del.innerHTML = '<i data-lucide="x" class="w-3 h-3"></i>';
-                del.onclick = (e) => { e.stopPropagation(); generationHistory.splice(index, 1); localStorage.setItem('nexus_history', JSON.stringify(generationHistory)); renderHistory(); };
-                div.append(img, del); strip.appendChild(div);
-            });
+            const fragment = document.createDocumentFragment();
+            generationHistory.forEach(item => fragment.appendChild(createHistoryElement(item)));
+            strip.appendChild(fragment);
+            document.getElementById('historyCount').textContent = generationHistory.length;
             lucide.createIcons();
+        }
+
+        function handleHistoryClick(e) {
+            const itemEl = e.target.closest('.history-item');
+            if (!itemEl) return;
+            const index = Array.from(itemEl.parentNode.children).indexOf(itemEl);
+            if (e.target.closest('.delete-btn')) {
+                generationHistory.splice(index, 1);
+                localStorage.setItem('nexus_history', JSON.stringify(generationHistory));
+                itemEl.remove();
+                document.getElementById('historyCount').textContent = generationHistory.length;
+                return;
+            }
+            restoreFromHistory(index);
         }
 
         function restoreFromHistory(index) {
             const item = generationHistory[index];
+            if (!item) return;
             document.getElementById('modelSelect').value = item.model;
             document.getElementById('promptInput').value = item.prompt;
             document.getElementById('negativeInput').value = item.negative || '';
